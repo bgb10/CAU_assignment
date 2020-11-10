@@ -1,3 +1,8 @@
+/* 
+Github Link: https://github.com/bgb10/CAU_assignment/tree/master/AutomataAndFormalLanguage/midterm_assignment2
+If you wonder specification, please enter Github or read README.md 
+*/
+
 /* The Bison declarations section */
 %{
 /* C declarations and #define statements go here */
@@ -39,6 +44,7 @@ term    : term '*' factor { $$ = $1 * $3; }
         ;
 factor  : top '^' factor { $$ = pow($1, $3); }
         | '-' factor { $$ = -$2; }
+        | '+' factor { $$ = $2; }
         | top { $$ = $1; }
         ;
 top     : NUMBER { $$ = $1; }
