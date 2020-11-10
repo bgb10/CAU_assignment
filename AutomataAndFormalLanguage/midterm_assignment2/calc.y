@@ -14,8 +14,7 @@ double last_result; /* #1. Add a special variable which can remember last calcul
 %token NUMBER /* define token type for numbers */
 %token '_' /* define token type for last_result */
 %left '+' '-' /* + and - are left associative */
-%left '*' '/' /* * and / are left associative */
-%left '%' /* % are left associative */
+%left '*' '/' '%'/* * and / and % are left associative */
 %right '^' /* ^ are right associative */
 %left '(' ')' /* ( and ) are left associative */
 
@@ -33,16 +32,16 @@ expr    : expr '+' term { $$ = $1 + $3; }
         | expr '-' term { $$ = $1 - $3; }
         | term          { $$ = $1; }
         ;
-term    : term '*' op1 { $$ = $1 * $3; }
-        | term '/' op1 { $$ = $1 / $3; }
-        | term '%' op1 { $$ = fmod($1, $3); }
-        | op1 { $$ = $1; }
+term    : term '*' factor { $$ = $1 * $3; }
+        | term '/' factor { $$ = $1 / $3; }
+        | term '%' factor { $$ = fmod($1, $3); }
+        | factor { $$ = $1; }
         ;
-op1     : op2 '^' op1 { $$ = pow($1, $3); }
-        | op2 { $$ = $1; }
+factor  : top '^' factor { $$ = pow($1, $3); }
+        | '-' factor { $$ = -$2; }
+        | top { $$ = $1; }
         ;
-op2     : NUMBER { $$ = $1; }
-        | '-' NUMBER { $$ = -$2; }
+top     : NUMBER { $$ = $1; }
         | '_' { $$ = last_result; }
         | '(' expr ')' { $$ = $2; }
         ;
