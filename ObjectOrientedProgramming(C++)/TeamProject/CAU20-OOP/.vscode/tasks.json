@@ -1,0 +1,46 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "Compile Project 1",
+      "options": {
+        "cwd": "${workspaceFolder}/Project_1"
+      },
+      "windows": {
+        "command": ".\\makefile.bat",
+      },
+      "osx": {
+        "command": "make",
+      },
+      "linux": {
+        "command": "make",
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Launch Project 1",
+      "options": {
+        "cwd": "${workspaceFolder}/Project_1/out"
+      },
+      "command": "./a.exe",
+      "args": [
+        "file1.txt",
+        "file2.txt"
+      ],
+      "dependsOn": [
+        "Compile Project 1"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}

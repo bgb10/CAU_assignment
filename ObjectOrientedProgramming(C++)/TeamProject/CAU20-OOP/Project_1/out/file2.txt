@@ -1,0 +1,16 @@
+101 Humanities
+102 Social Sciences
+103 Education
+201 Natural Sciences
+202 Bio Engineering
+203 Mechanical Engineering
+204 ICT Engineering
+205 Computer Science & Engineering
+206 Earth & Space Sciences
+301 Business & Economics
+401 Medicine
+402 Pharmacy
+403 Nursing
+501 Art
+502 Art and Technology
+601 Sport Sciences
