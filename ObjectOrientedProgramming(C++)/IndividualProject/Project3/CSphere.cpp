@@ -52,13 +52,45 @@ void CSphere::draw(IDirect3DDevice9* pDevice, const D3DXMATRIX& mWorld)
 bool CSphere::hasIntersected(CSphere& ball)
 {
 	// Insert your code here.
+	D3DXVECTOR3 distance_vector = this->getCenter() - ball.getCenter();
 
+	float distance_scala;
+	distance_scala = sqrt(distance_vector.x* distance_vector.x + distance_vector.y * distance_vector.y + distance_vector.z * distance_vector.z);
+	
+	//Intersected
+	if (distance_scala <= this->getRadius() + ball.getRadius()) {
+		return true;
+	}
+
+	//Not Intersected
 	return false;
 }
 
 void CSphere::hitBy(CSphere& ball)
 {
 	// Insert your code here.
+
+	if (hasIntersected(ball)) {
+		//충돌 구현
+
+		//부딪힌 공을 사라지게 만듦
+
+		//튕기기(맞은 속도가 중요한게 아니라, 맞은 방향이 중요하다, 벡터 차만큼 이동하도록 한다)
+
+		float delta_x = ball.getCenter().x - this->getCenter().x;
+		float delta_z = ball.getCenter().z - this->getCenter().z;
+		float multiple;
+
+		float velocity_vector_scala = sqrt(ball.getVelocity_X() * ball.getVelocity_X() + ball.getVelocity_Z() * ball.getVelocity_Z());
+		float distance_vector_scala = sqrt(delta_x * delta_x + delta_z * delta_z); //방향 벡터
+		multiple = velocity_vector_scala / distance_vector_scala;
+
+		float new_velocity_x = multiple * delta_x;
+		float new_velocity_z = multiple * delta_z;
+
+		ball.setPower(new_velocity_x, new_velocity_z);
+	}
+
 }
 
 void CSphere::ballUpdate(float timeDiff)
@@ -75,14 +107,22 @@ void CSphere::ballUpdate(float timeDiff)
 
 		//correction of position of ball
 		/* Please uncomment this part because this correction of ball position is necessary when a ball collides with a wall */
-		if (tX >= (4.5 - M_RADIUS))
+		if (tX > (4.5 - M_RADIUS)) {
 			tX = 4.5 - M_RADIUS;
-		else if (tX <= (-4.5 + M_RADIUS))
+			setPower(-getVelocity_X(), getVelocity_Z());
+		}
+		else if (tX < (-4.5 + M_RADIUS)) {
 			tX = -4.5 + M_RADIUS;
-		else if (tZ <= (-3 + M_RADIUS))
+			setPower(-getVelocity_X(), getVelocity_Z());
+		}
+		else if (tZ < (-3 + M_RADIUS)) {
 			tZ = -3 + M_RADIUS;
-		else if (tZ >= (3 - M_RADIUS))
+			setPower(getVelocity_X(), -getVelocity_Z());
+		}
+		else if (tZ > (3 - M_RADIUS)) {
 			tZ = 3 - M_RADIUS;
+			setPower(getVelocity_X(), -getVelocity_Z());
+		}
 		this->setCenter(tX, cord.y, tZ);
 	}
 	else { this->setPower(0, 0); }
@@ -112,3 +152,4 @@ D3DXVECTOR3 CSphere::getCenter(void) const
 	D3DXVECTOR3 org(center_x, center_y, center_z);
 	return org;
 }
+

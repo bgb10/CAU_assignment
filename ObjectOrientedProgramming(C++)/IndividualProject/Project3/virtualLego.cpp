@@ -284,7 +284,7 @@ int WINAPI WinMain(HINSTANCE hinstance,
 		return 0;
 	}
 
-	d3d::EnterMsgLoop(Display);
+	d3d::EnterMsgLoop(Display); //Display 이름 자체를 주면 함수 포인터를 주는 격이다.
 
 	Cleanup();
 

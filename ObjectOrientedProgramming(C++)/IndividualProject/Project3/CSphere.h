@@ -2,6 +2,7 @@
 #define __CSSPHERE__
 
 #include "d3dUtility.h"
+#include <cmath>
 
 // There are four balls
 // initialize the position (coordinate) of each ball (ball0 ~ ball3)

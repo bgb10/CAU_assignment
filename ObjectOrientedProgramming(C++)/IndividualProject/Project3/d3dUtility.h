@@ -36,7 +36,7 @@ namespace d3d
 		IDirect3DDevice9** device);// [out]The created device.
 
 	int EnterMsgLoop( 
-		bool (*ptr_display)(float timeDelta));
+		bool (*ptr_display)(float timeDelta)); //float timeDelta를 받고 bool형 데이터를 반환하는 함수 포인터를 인자로 받는다.
 
 	LRESULT CALLBACK WndProc(
 		HWND hwnd,
