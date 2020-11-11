@@ -10,12 +10,7 @@
 //        
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "d3dUtility.h"
-#include <vector>
-#include <ctime>
-#include <cstdlib>
-#include <cstdio>
-#include <cassert>
+#include "virtualLego.h"
 
 IDirect3DDevice9* Device = NULL;
 
@@ -23,338 +18,12 @@ IDirect3DDevice9* Device = NULL;
 const int Width  = 1024;
 const int Height = 768;
 
-// There are four balls
-// initialize the position (coordinate) of each ball (ball0 ~ ball3)
-const float spherePos[4][2] = { {-2.7f,0} , {+2.4f,0} , {3.3f,0} , {-2.7f,-0.9f}}; 
-// initialize the color of each ball (ball0 ~ ball3)
-const D3DXCOLOR sphereColor[4] = {d3d::RED, d3d::RED, d3d::YELLOW, d3d::WHITE};
-
 // -----------------------------------------------------------------------------
 // Transform matrices
 // -----------------------------------------------------------------------------
 D3DXMATRIX g_mWorld;
 D3DXMATRIX g_mView;
 D3DXMATRIX g_mProj;
-
-#define M_RADIUS 0.21   // ball radius
-#define PI 3.14159265
-#define M_HEIGHT 0.01
-#define DECREASE_RATE 0.9982
-
-// -----------------------------------------------------------------------------
-// CSphere class definition
-// -----------------------------------------------------------------------------
-
-class CSphere {
-private :
-	float					center_x, center_y, center_z;
-    float                   m_radius;
-	float					m_velocity_x;
-	float					m_velocity_z;
-
-public:
-    CSphere(void)
-    {
-        D3DXMatrixIdentity(&m_mLocal);
-        ZeroMemory(&m_mtrl, sizeof(m_mtrl));
-        m_radius = 0;
-		m_velocity_x = 0;
-		m_velocity_z = 0;
-        m_pSphereMesh = NULL;
-    }
-    ~CSphere(void) {}
-
-public:
-    bool create(IDirect3DDevice9* pDevice, D3DXCOLOR color = d3d::WHITE)
-    {
-        if (NULL == pDevice)
-            return false;
-		
-        m_mtrl.Ambient  = color;
-        m_mtrl.Diffuse  = color;
-        m_mtrl.Specular = color;
-        m_mtrl.Emissive = d3d::BLACK;
-        m_mtrl.Power    = 5.0f;
-		
-        if (FAILED(D3DXCreateSphere(pDevice, getRadius(), 50, 50, &m_pSphereMesh, NULL)))
-            return false;
-        return true;
-    }
-	
-    void destroy(void)
-    {
-        if (m_pSphereMesh != NULL) {
-            m_pSphereMesh->Release();
-            m_pSphereMesh = NULL;
-        }
-    }
-
-    void draw(IDirect3DDevice9* pDevice, const D3DXMATRIX& mWorld)
-    {
-        if (NULL == pDevice)
-            return;
-        pDevice->SetTransform(D3DTS_WORLD, &mWorld);
-        pDevice->MultiplyTransform(D3DTS_WORLD, &m_mLocal);
-        pDevice->SetMaterial(&m_mtrl);
-		m_pSphereMesh->DrawSubset(0);
-    }
-	
-    bool hasIntersected(CSphere& ball) 
-	{
-		// Insert your code here.
-		return false;
-	}
-	
-	void hitBy(CSphere& ball) 
-	{ 
-		// Insert your code here.
-	}
-
-	void ballUpdate(float timeDiff) 
-	{
-		const float TIME_SCALE = 3.3;
-		D3DXVECTOR3 cord = this->getCenter();
-		double vx = abs(this->getVelocity_X());
-		double vz = abs(this->getVelocity_Z());
-
-		if(vx > 0.01 || vz > 0.01)
-		{
-			float tX = cord.x + TIME_SCALE*timeDiff*m_velocity_x;
-			float tZ = cord.z + TIME_SCALE*timeDiff*m_velocity_z;
-
-			//correction of position of ball
-			/* Please uncomment this part because this correction of ball position is necessary when a ball collides with a wall
-			if(tX >= (4.5 - M_RADIUS))
-				tX = 4.5 - M_RADIUS;
-			else if(tX <=(-4.5 + M_RADIUS))
-				tX = -4.5 + M_RADIUS;
-			else if(tZ <= (-3 + M_RADIUS))
-				tZ = -3 + M_RADIUS;
-			else if(tZ >= (3 - M_RADIUS))
-				tZ = 3 - M_RADIUS;
-			*/
-			this->setCenter(tX, cord.y, tZ);
-		}
-		else { this->setPower(0,0);}
-		//this->setPower(this->getVelocity_X() * DECREASE_RATE, this->getVelocity_Z() * DECREASE_RATE);
-		double rate = 1 -  (1 - DECREASE_RATE)*timeDiff * 400;
-		if(rate < 0 )
-			rate = 0;
-		this->setPower(getVelocity_X() * rate, getVelocity_Z() * rate);
-	}
-
-	double getVelocity_X() { return this->m_velocity_x;	}
-	double getVelocity_Z() { return this->m_velocity_z; }
-
-	void setPower(double vx, double vz)
-	{
-		this->m_velocity_x = vx;
-		this->m_velocity_z = vz;
-	}
-
-	void setCenter(float x, float y, float z)
-	{
-		D3DXMATRIX m;
-		center_x=x;	center_y=y;	center_z=z;
-		D3DXMatrixTranslation(&m, x, y, z);
-		setLocalTransform(m);
-	}
-	
-	float getRadius(void)  const { return (float)(M_RADIUS);  }
-    const D3DXMATRIX& getLocalTransform(void) const { return m_mLocal; }
-    void setLocalTransform(const D3DXMATRIX& mLocal) { m_mLocal = mLocal; }
-    D3DXVECTOR3 getCenter(void) const
-    {
-        D3DXVECTOR3 org(center_x, center_y, center_z);
-        return org;
-    }
-	
-private:
-    D3DXMATRIX              m_mLocal;
-    D3DMATERIAL9            m_mtrl;
-    ID3DXMesh*              m_pSphereMesh;
-	
-};
-
-
-
-// -----------------------------------------------------------------------------
-// CWall class definition
-// -----------------------------------------------------------------------------
-
-class CWall {
-
-private:
-	
-    float					m_x;
-	float					m_z;
-	float                   m_width;
-    float                   m_depth;
-	float					m_height;
-	
-public:
-    CWall(void)
-    {
-        D3DXMatrixIdentity(&m_mLocal);
-        ZeroMemory(&m_mtrl, sizeof(m_mtrl));
-        m_width = 0;
-        m_depth = 0;
-        m_pBoundMesh = NULL;
-    }
-    ~CWall(void) {}
-public:
-    bool create(IDirect3DDevice9* pDevice, float ix, float iz, float iwidth, float iheight, float idepth, D3DXCOLOR color = d3d::WHITE)
-    {
-        if (NULL == pDevice)
-            return false;
-		
-        m_mtrl.Ambient  = color;
-        m_mtrl.Diffuse  = color;
-        m_mtrl.Specular = color;
-        m_mtrl.Emissive = d3d::BLACK;
-        m_mtrl.Power    = 5.0f;
-		
-        m_width = iwidth;
-        m_depth = idepth;
-		
-        if (FAILED(D3DXCreateBox(pDevice, iwidth, iheight, idepth, &m_pBoundMesh, NULL)))
-            return false;
-        return true;
-    }
-    void destroy(void)
-    {
-        if (m_pBoundMesh != NULL) {
-            m_pBoundMesh->Release();
-            m_pBoundMesh = NULL;
-        }
-    }
-    void draw(IDirect3DDevice9* pDevice, const D3DXMATRIX& mWorld)
-    {
-        if (NULL == pDevice)
-            return;
-        pDevice->SetTransform(D3DTS_WORLD, &mWorld);
-        pDevice->MultiplyTransform(D3DTS_WORLD, &m_mLocal);
-        pDevice->SetMaterial(&m_mtrl);
-		m_pBoundMesh->DrawSubset(0);
-    }
-	
-	bool hasIntersected(CSphere& ball) {
-		// Insert your code here.
-		return false;
-	}
-
-	void hitBy(CSphere& ball) {
-		// Insert your code here.
-	}    
-	
-	void setPosition(float x, float y, float z)
-	{
-		D3DXMATRIX m;
-		this->m_x = x;
-		this->m_z = z;
-
-		D3DXMatrixTranslation(&m, x, y, z);
-		setLocalTransform(m);
-	}
-	
-    float getHeight(void) const { return M_HEIGHT; }
-	
-	
-	
-private :
-    void setLocalTransform(const D3DXMATRIX& mLocal) { m_mLocal = mLocal; }
-	
-	D3DXMATRIX              m_mLocal;
-    D3DMATERIAL9            m_mtrl;
-    ID3DXMesh*              m_pBoundMesh;
-};
-
-// -----------------------------------------------------------------------------
-// CLight class definition
-// -----------------------------------------------------------------------------
-
-class CLight {
-public:
-    CLight(void)
-    {
-        static DWORD i = 0;
-        m_index = i++;
-        D3DXMatrixIdentity(&m_mLocal);
-        ::ZeroMemory(&m_lit, sizeof(m_lit));
-        m_pMesh = NULL;
-        m_bound._center = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-        m_bound._radius = 0.0f;
-    }
-    ~CLight(void) {}
-public:
-    bool create(IDirect3DDevice9* pDevice, const D3DLIGHT9& lit, float radius = 0.1f)
-    {
-        if (NULL == pDevice)
-            return false;
-        if (FAILED(D3DXCreateSphere(pDevice, radius, 10, 10, &m_pMesh, NULL)))
-            return false;
-		
-        m_bound._center = lit.Position;
-        m_bound._radius = radius;
-		
-        m_lit.Type          = lit.Type;
-        m_lit.Diffuse       = lit.Diffuse;
-        m_lit.Specular      = lit.Specular;
-        m_lit.Ambient       = lit.Ambient;
-        m_lit.Position      = lit.Position;
-        m_lit.Direction     = lit.Direction;
-        m_lit.Range         = lit.Range;
-        m_lit.Falloff       = lit.Falloff;
-        m_lit.Attenuation0  = lit.Attenuation0;
-        m_lit.Attenuation1  = lit.Attenuation1;
-        m_lit.Attenuation2  = lit.Attenuation2;
-        m_lit.Theta         = lit.Theta;
-        m_lit.Phi           = lit.Phi;
-        return true;
-    }
-    void destroy(void)
-    {
-        if (m_pMesh != NULL) {
-            m_pMesh->Release();
-            m_pMesh = NULL;
-        }
-    }
-    bool setLight(IDirect3DDevice9* pDevice, const D3DXMATRIX& mWorld)
-    {
-        if (NULL == pDevice)
-            return false;
-		
-        D3DXVECTOR3 pos(m_bound._center);
-        D3DXVec3TransformCoord(&pos, &pos, &m_mLocal);
-        D3DXVec3TransformCoord(&pos, &pos, &mWorld);
-        m_lit.Position = pos;
-		
-        pDevice->SetLight(m_index, &m_lit);
-        pDevice->LightEnable(m_index, TRUE);
-        return true;
-    }
-
-    void draw(IDirect3DDevice9* pDevice)
-    {
-        if (NULL == pDevice)
-            return;
-        D3DXMATRIX m;
-        D3DXMatrixTranslation(&m, m_lit.Position.x, m_lit.Position.y, m_lit.Position.z);
-        pDevice->SetTransform(D3DTS_WORLD, &m);
-        pDevice->SetMaterial(&d3d::WHITE_MTRL);
-        m_pMesh->DrawSubset(0);
-    }
-
-    D3DXVECTOR3 getPosition(void) const { return D3DXVECTOR3(m_lit.Position); }
-
-private:
-    DWORD               m_index;
-    D3DXMATRIX          m_mLocal;
-    D3DLIGHT9           m_lit;
-    ID3DXMesh*          m_pMesh;
-    d3d::BoundingSphere m_bound;
-};
-
 
 // -----------------------------------------------------------------------------
 // Global variables
@@ -364,8 +33,6 @@ CWall	g_legowall[4];
 CSphere	g_sphere[4];
 CSphere	g_target_blueball;
 CLight	g_light;
-
-double g_camera_pos[3] = {0.0, 5.0, -8.0};
 
 // -----------------------------------------------------------------------------
 // Functions
@@ -598,30 +265,30 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 int WINAPI WinMain(HINSTANCE hinstance,
-				   HINSTANCE prevInstance, 
-				   PSTR cmdLine,
-				   int showCmd)
+	HINSTANCE prevInstance,
+	PSTR cmdLine,
+	int showCmd)
 {
-    srand(static_cast<unsigned int>(time(NULL)));
-	
-	if(!d3d::InitD3D(hinstance,
+	srand(static_cast<unsigned int>(time(NULL)));
+
+	if (!d3d::InitD3D(hinstance,
 		Width, Height, true, D3DDEVTYPE_HAL, &Device))
 	{
 		::MessageBox(0, "InitD3D() - FAILED", 0, 0);
 		return 0;
 	}
-	
-	if(!Setup())
+
+	if (!Setup())
 	{
 		::MessageBox(0, "Setup() - FAILED", 0, 0);
 		return 0;
 	}
-	
-	d3d::EnterMsgLoop( Display );
-	
+
+	d3d::EnterMsgLoop(Display);
+
 	Cleanup();
-	
+
 	Device->Release();
-	
+
 	return 0;
 }
