@@ -81,22 +81,22 @@ void CWall::hitBy(CSphere& ball) {
 		float cord_z = ball.getCenter().z;
 
 		if (cord_x >= (4.5 - M_RADIUS)) { //hit on right wall
-			//cord_x = 4.5 - M_RADIUS;
+			cord_x = 4.5 - M_RADIUS;
 			ball.setPower(-ball.getVelocity_X(), ball.getVelocity_Z());
 		}
 		else if (cord_x <= (-4.5 + M_RADIUS)) { //hit on left wall
-			//cord_x = -4.5 + M_RADIUS;
+			cord_x = -4.5 + M_RADIUS;
 			ball.setPower(-ball.getVelocity_X(), ball.getVelocity_Z());
 		}
 		else if (cord_z <= (-3 + M_RADIUS)) { //hit on downward wall
-			//cord_z = -3 + M_RADIUS;
+			cord_z = -3 + M_RADIUS;
 			ball.setPower(ball.getVelocity_X(), -ball.getVelocity_Z());
 		}
 		else if (cord_z >= (3 - M_RADIUS)) { //hit on upward wall
-			//cord_z = 3 - M_RADIUS;
+			cord_z = 3 - M_RADIUS;
 			ball.setPower(ball.getVelocity_X(), -ball.getVelocity_Z());
 		}
-		//ball.setCenter(.0f, ball.getCenter().y, .0f);
+		ball.setCenter(cord_x, cord_y, cord_z);
 	}
 }
 

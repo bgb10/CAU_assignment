@@ -106,31 +106,27 @@ void CSphere::ballUpdate(float timeDiff)
 		float tZ = cord.z + TIME_SCALE * timeDiff * m_velocity_z;
 
 		//correction of position of ball
-		/* Please uncomment this part because this correction of ball position is necessary when a ball collides with a wall */
-		if (tX > (4.5 - M_RADIUS)) {
+		/* Please uncomment this part because this correction of ball position is necessary when a ball collides with a wall
+		if (tX >= (4.5 - M_RADIUS)) {
 			tX = 4.5 - M_RADIUS;
-			setPower(-getVelocity_X(), getVelocity_Z());
 		}
-		else if (tX < (-4.5 + M_RADIUS)) {
+		else if (tX <= (-4.5 + M_RADIUS)) {
 			tX = -4.5 + M_RADIUS;
-			setPower(-getVelocity_X(), getVelocity_Z());
 		}
-		else if (tZ < (-3 + M_RADIUS)) {
+		else if (tZ <= (-3 + M_RADIUS)) {
 			tZ = -3 + M_RADIUS;
-			setPower(getVelocity_X(), -getVelocity_Z());
 		}
-		else if (tZ > (3 - M_RADIUS)) {
+		else if (tZ >= (3 - M_RADIUS)) {
 			tZ = 3 - M_RADIUS;
-			setPower(getVelocity_X(), -getVelocity_Z());
-		}
+		}*/
 		this->setCenter(tX, cord.y, tZ);
 	}
 	else { this->setPower(0, 0); }
 	//this->setPower(this->getVelocity_X() * DECREASE_RATE, this->getVelocity_Z() * DECREASE_RATE);
-	double rate = 1 - (1 - DECREASE_RATE) * timeDiff * 400;
+	/*double rate = 1 - (1 - DECREASE_RATE) * timeDiff * 400;
 	if (rate < 0)
 		rate = 0;
-	this->setPower(getVelocity_X() * rate, getVelocity_Z() * rate);
+	this->setPower(getVelocity_X() * rate, getVelocity_Z() * rate);*/
 }
 
 void CSphere::setPower(double vx, double vz)
