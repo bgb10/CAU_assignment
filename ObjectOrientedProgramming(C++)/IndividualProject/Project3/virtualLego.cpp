@@ -12,6 +12,12 @@
 
 #include "virtualLego.h"
 
+// There are four balls
+// initialize the position (coordinate) of each ball (ball0 ~ ball3)
+const float spherePos[4][2] = { {-2.7f,0} , {+2.4f,0} , {3.3f,0} , {-2.7f,-0.9f} };
+// initialize the color of each ball (ball0 ~ ball3)
+const D3DXCOLOR sphereColor[4] = { d3d::RED, d3d::RED, d3d::YELLOW, d3d::WHITE };
+
 IDirect3DDevice9* Device = NULL;
 
 // window size
@@ -84,16 +90,16 @@ bool Setup()
     lit.Diffuse      = d3d::WHITE; 
 	lit.Specular     = d3d::WHITE * 0.9f;
     lit.Ambient      = d3d::WHITE * 0.9f;
-    lit.Position     = D3DXVECTOR3(0.0f, 3.0f, 0.0f);
+    lit.Position     = D3DXVECTOR3(0.0f, 6.0f, 0.0f);
     lit.Range        = 100.0f;
     lit.Attenuation0 = 0.0f;
-    lit.Attenuation1 = 0.9f;
+    lit.Attenuation1 = 0.5f;
     lit.Attenuation2 = 0.0f;
     if (false == g_light.create(Device, lit))
         return false;
 	
 	// Position and aim the camera.
-	D3DXVECTOR3 pos(0.0f, 5.0f, -8.0f);
+	D3DXVECTOR3 pos(9.0f, 9.0f, 0.0f);
 	D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3 up(0.0f, 2.0f, 0.0f);
 	D3DXMatrixLookAtLH(&g_mView, &pos, &target, &up);
@@ -229,11 +235,11 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					
                     switch (move) {
                     case WORLD_MOVE:
-                        dx = (old_x - new_x) * 0.01f;
+                        /*dx = (old_x - new_x) * 0.01f;
                         dy = (old_y - new_y) * 0.01f;
                         D3DXMatrixRotationY(&mX, dx);
                         D3DXMatrixRotationX(&mY, dy);
-                        g_mWorld = g_mWorld * mX * mY;
+                        g_mWorld = g_mWorld * mX * mY;*/
 						
                         break;
                     }

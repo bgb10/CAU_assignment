@@ -122,6 +122,7 @@ void CSphere::ballUpdate(float timeDiff)
 		this->setCenter(tX, cord.y, tZ);
 	}
 	else { this->setPower(0, 0); }
+	//Decrease speed
 	//this->setPower(this->getVelocity_X() * DECREASE_RATE, this->getVelocity_Z() * DECREASE_RATE);
 	/*double rate = 1 - (1 - DECREASE_RATE) * timeDiff * 400;
 	if (rate < 0)
