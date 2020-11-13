@@ -21,6 +21,8 @@ private:
 	float					m_velocity_x;
 	float					m_velocity_z;
 
+	bool					isControlball = false;
+
 public:
 	CSphere(void);
 	~CSphere(void);
@@ -49,6 +51,9 @@ public:
 	const D3DXMATRIX& getLocalTransform(void) const { return m_mLocal; }
 	void setLocalTransform(const D3DXMATRIX& mLocal) { m_mLocal = mLocal; }
 	D3DXVECTOR3 getCenter(void) const;
+
+	void setControlBall(bool l_isControlball) { isControlball = l_isControlball; }
+	bool isControlBall(void) { return isControlball; }
 
 private:
 	D3DXMATRIX              m_mLocal;

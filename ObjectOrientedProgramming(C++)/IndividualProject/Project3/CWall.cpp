@@ -72,10 +72,11 @@ bool CWall::hasIntersected(CSphere& ball) {
 
 void CWall::hitBy(CSphere& ball) {
 	// Insert your code here.
-	//충돌 구현
+	// 충돌 구현
 
 	//튕기기
 	if (hasIntersected(ball)) {
+
 		float cord_x = ball.getCenter().x;
 		float cord_y = ball.getCenter().y;
 		float cord_z = ball.getCenter().z;
@@ -96,6 +97,12 @@ void CWall::hitBy(CSphere& ball) {
 			cord_z = 3 - M_RADIUS;
 			ball.setPower(ball.getVelocity_X(), -ball.getVelocity_Z());
 		}
+
+		// hit한 ball이 controlball인 경우 튕기지 않고 정지만 시키기
+		if (ball.isControlBall()) {
+			ball.setPower(0.0, 0.0);
+		}
+
 		ball.setCenter(cord_x, cord_y, cord_z);
 	}
 }

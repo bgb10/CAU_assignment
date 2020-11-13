@@ -55,7 +55,7 @@ bool CSphere::hasIntersected(CSphere& ball)
 	D3DXVECTOR3 distance_vector = this->getCenter() - ball.getCenter();
 
 	float distance_scala;
-	distance_scala = sqrt(distance_vector.x* distance_vector.x + distance_vector.y * distance_vector.y + distance_vector.z * distance_vector.z);
+	distance_scala = sqrt(distance_vector.x * distance_vector.x + distance_vector.y * distance_vector.y + distance_vector.z * distance_vector.z);
 	
 	//Intersected
 	if (distance_scala <= this->getRadius() + ball.getRadius()) {
@@ -69,13 +69,10 @@ bool CSphere::hasIntersected(CSphere& ball)
 void CSphere::hitBy(CSphere& ball)
 {
 	// Insert your code here.
-
 	if (hasIntersected(ball)) {
 		//충돌 구현
 
-		//부딪힌 공을 사라지게 만듦
-
-		//튕기기(맞은 속도가 중요한게 아니라, 맞은 방향이 중요하다, 벡터 차만큼 이동하도록 한다)
+		//moveball을 튕기기(맞은 속도가 중요한게 아니라, 맞은 방향이 중요하다, 벡터 차만큼 이동하도록 한다)
 
 		float delta_x = ball.getCenter().x - this->getCenter().x;
 		float delta_z = ball.getCenter().z - this->getCenter().z;
@@ -89,8 +86,12 @@ void CSphere::hitBy(CSphere& ball)
 		float new_velocity_z = multiple * delta_z;
 
 		ball.setPower(new_velocity_x, new_velocity_z);
-	}
 
+		// this가 controlball이면, ball을 사라지게 하지 않기
+		if (!this->isControlBall()) {
+			this->setCenter(-10.0f, -10.0f, 0.0f);
+		}
+	}
 }
 
 void CSphere::ballUpdate(float timeDiff)
@@ -102,8 +103,8 @@ void CSphere::ballUpdate(float timeDiff)
 
 	if (vx > 0.01 || vz > 0.01)
 	{
-		float tX = cord.x + TIME_SCALE * timeDiff * m_velocity_x;
-		float tZ = cord.z + TIME_SCALE * timeDiff * m_velocity_z;
+		float tX = cord.x + TIME_SCALE * timeDiff * getVelocity_X();
+		float tZ = cord.z + TIME_SCALE * timeDiff * getVelocity_Z();
 
 		//correction of position of ball
 		/* Please uncomment this part because this correction of ball position is necessary when a ball collides with a wall
