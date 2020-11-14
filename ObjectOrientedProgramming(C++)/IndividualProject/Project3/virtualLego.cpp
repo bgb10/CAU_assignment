@@ -13,7 +13,7 @@
 #include "virtualLego.h"
 
 #define brickCount 52
-#define wallCount 4
+#define wallCount 3
 
 // There are four balls
 // initialize the position (coordinate) of each ball (ball0 ~ ball3)
@@ -74,10 +74,10 @@ bool Setup()
 	g_legowall[0].setPosition(0.0f, 0.12f, 3.06f);
 	if (false == g_legowall[1].create(Device, -1, -1, 9, 0.3f, 0.12f, d3d::DARKRED)) return false;
 	g_legowall[1].setPosition(0.0f, 0.12f, -3.06f);
+	/*if (false == g_legowall[2].create(Device, -1, -1, 0.12f, 0.3f, 6.24f, d3d::DARKRED)) return false;
+	g_legowall[2].setPosition(4.56f, 0.12f, 0.0f);*/
 	if (false == g_legowall[2].create(Device, -1, -1, 0.12f, 0.3f, 6.24f, d3d::DARKRED)) return false;
-	g_legowall[2].setPosition(4.56f, 0.12f, 0.0f);
-	if (false == g_legowall[3].create(Device, -1, -1, 0.12f, 0.3f, 6.24f, d3d::DARKRED)) return false;
-	g_legowall[3].setPosition(-4.56f, 0.12f, 0.0f);
+	g_legowall[2].setPosition(-4.56f, 0.12f, 0.0f);
 
 	// set position and color for the bricks
 	// set position
@@ -191,8 +191,21 @@ bool Display(float timeDelta)
 		g_moveball.ballUpdate(timeDelta);
 		g_controlball.hitBy(g_moveball);
 
-		// If game not started, moveball follows controlball
+		// Added: If game not started, moveball follows controlball
 		if(!game_start) g_moveball.setCenter(g_controlball.getCenter().x - 2 * M_RADIUS, g_controlball.getCenter().y, g_controlball.getCenter().z);
+
+		// Added: If ball out of field, restart game
+		if (g_moveball.getCenter().x >= 8) {
+			game_start = false;
+			g_moveball.setCenter(g_controlball.getCenter().x - 2 * M_RADIUS, g_controlball.getCenter().y, g_controlball.getCenter().z);
+			g_moveball.setPower(0, 0);
+
+			// balls set the position
+			for (i = 0; i < brickCount; i++) {
+				g_sphere[i].setCenter(spherePos[i][0], (float)M_RADIUS, spherePos[i][1]);
+				g_sphere[i].setPower(0, 0);
+			}
+		}
 
 		// draw plane, walls, and spheres
 		g_legoPlane.draw(Device, g_mWorld);
@@ -255,7 +268,7 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			if (!game_start) {
 				game_start = true;
 
-				g_moveball.setPower(1.0f, 0.0f);
+				g_moveball.setPower(0.5f, 0.5f);
 			}
 			break;
 		}

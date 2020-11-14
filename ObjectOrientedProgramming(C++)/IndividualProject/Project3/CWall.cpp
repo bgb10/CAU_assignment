@@ -54,10 +54,10 @@ bool CWall::hasIntersected(CSphere& ball) {
 	float cord_y = ball.getCenter().y;
 	float cord_z = ball.getCenter().z;
 
-	if (cord_x >= (4.5 - M_RADIUS)) {
-		return true;
-	}
-	else if (cord_x <= (-4.5 + M_RADIUS)) {
+	//if (cord_x >= (4.5 - M_RADIUS)) {
+	//	return true;
+	//}
+	if (cord_x <= (-4.5 + M_RADIUS)) {
 		return true;
 	}
 	else if (cord_z <= (-3 + M_RADIUS)) {
@@ -81,11 +81,11 @@ void CWall::hitBy(CSphere& ball) {
 		float cord_y = ball.getCenter().y;
 		float cord_z = ball.getCenter().z;
 
-		if (cord_x >= (4.5 - M_RADIUS)) { //hit on right wall
-			cord_x = 4.5 - M_RADIUS;
-			ball.setPower(-ball.getVelocity_X(), ball.getVelocity_Z());
-		}
-		else if (cord_x <= (-4.5 + M_RADIUS)) { //hit on left wall
+		//if (cord_x >= (4.5 - M_RADIUS)) { //hit on right wall
+		//	cord_x = 4.5 - M_RADIUS;
+		//	ball.setPower(-ball.getVelocity_X(), ball.getVelocity_Z());
+		//}
+		if (cord_x <= (-4.5 + M_RADIUS)) { //hit on left wall
 			cord_x = -4.5 + M_RADIUS;
 			ball.setPower(-ball.getVelocity_X(), ball.getVelocity_Z());
 		}
