@@ -64,7 +64,6 @@ bool CWall::hasIntersected(CSphere& ball) {
 	}
 	else return false;
 
-	//assert Ãß°¡
 	return false;
 }
 
