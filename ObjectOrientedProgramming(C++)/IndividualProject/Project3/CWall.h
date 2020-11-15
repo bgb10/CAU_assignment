@@ -8,6 +8,8 @@
 // CWall class definition
 // -----------------------------------------------------------------------------
 
+#define COR_VAL 0.01f //오차 보정값
+
 class CWall {
 
 private:
@@ -32,7 +34,10 @@ public:
 
     void setPosition(float x, float y, float z);
 
-    float getHeight(void) const { return M_HEIGHT; }
+    float getHeight(void) const { return m_height; }
+    float getWidth(void) const { return m_width; }
+    float getDepth(void) const { return m_depth; }
+    D3DXVECTOR3 getCenter(void) const;
 
 private:
     void setLocalTransform(const D3DXMATRIX& mLocal) { m_mLocal = mLocal; }

@@ -24,6 +24,7 @@ bool CWall::create(IDirect3DDevice9* pDevice, float ix, float iz, float iwidth, 
 	m_mtrl.Emissive = d3d::BLACK;
 	m_mtrl.Power = 5.0f;
 
+	m_height = iheight;
 	m_width = iwidth;
 	m_depth = idepth;
 
@@ -51,59 +52,59 @@ void CWall::draw(IDirect3DDevice9* pDevice, const D3DXMATRIX& mWorld)
 bool CWall::hasIntersected(CSphere& ball) {
 	// Insert your code here.
 	float cord_x = ball.getCenter().x;
-	float cord_y = ball.getCenter().y;
 	float cord_z = ball.getCenter().z;
 
-	//if (cord_x >= (4.5 - M_RADIUS)) {
-	//	return true;
-	//}
-	if (cord_x <= (-4.5 + M_RADIUS)) {
-		return true;
-	}
-	else if (cord_z <= (-3 + M_RADIUS)) {
-		return true;
-	}
-	else if (cord_z >= (3 - M_RADIUS)) {
-		return true;
-	}
+	float hit_boundary_min_x = this->m_x - this->getWidth() / 2 - ball.getRadius();
+	float hit_boundary_max_x = this->m_x + this->getWidth() / 2 + ball.getRadius();
+	float hit_boundary_min_z = this->m_z - this->getDepth() / 2 - ball.getRadius();
+	float hit_boundary_max_z = this->m_z + this->getDepth() / 2 + ball.getRadius();
 
+	if ((hit_boundary_min_x <= cord_x && cord_x <= hit_boundary_max_x) && (hit_boundary_min_z <= cord_z && cord_z <= hit_boundary_max_z)) {
+		return true;
+	}
+	else return false;
+
+	//assert 추가
 	return false;
 }
 
 void CWall::hitBy(CSphere& ball) {
 	// Insert your code here.
-	// 충돌 구현
-
-	//튕기기
 	if (hasIntersected(ball)) {
 
 		float cord_x = ball.getCenter().x;
-		float cord_y = ball.getCenter().y;
 		float cord_z = ball.getCenter().z;
 
-		//if (cord_x >= (4.5 - M_RADIUS)) { //hit on right wall
-		//	cord_x = 4.5 - M_RADIUS;
-		//	ball.setPower(-ball.getVelocity_X(), ball.getVelocity_Z());
-		//}
-		if (cord_x <= (-4.5 + M_RADIUS)) { //hit on left wall
-			cord_x = -4.5 + M_RADIUS;
-			ball.setPower(-ball.getVelocity_X(), ball.getVelocity_Z());
-		}
-		else if (cord_z <= (-3 + M_RADIUS)) { //hit on downward wall
-			cord_z = -3 + M_RADIUS;
-			ball.setPower(ball.getVelocity_X(), -ball.getVelocity_Z());
-		}
-		else if (cord_z >= (3 - M_RADIUS)) { //hit on upward wall
-			cord_z = 3 - M_RADIUS;
+		float boundary_min_x = this->m_x - this->getWidth() / 2;
+		float boundary_max_x = this->m_x + this->getWidth() / 2;
+		float boundary_min_z = this->m_z - this->getDepth() / 2;
+		float boundary_max_z = this->m_z + this->getDepth() / 2;
+
+		if ((boundary_min_x <= cord_x && cord_x <= boundary_max_x) && !(boundary_min_z <= cord_z && cord_z <= boundary_max_z)){
+			if (boundary_min_z - ball.getRadius() <= cord_z && cord_z <= this->m_z) {
+				cord_z = boundary_min_z - ball.getRadius() - COR_VAL;
+			}
+			else {
+				cord_z = boundary_max_z + ball.getRadius() + COR_VAL;
+			}
 			ball.setPower(ball.getVelocity_X(), -ball.getVelocity_Z());
 		}
 
-		// hit한 ball이 controlball인 경우 튕기지 않고 정지만 시키기
+		if (!(boundary_min_x <= cord_x && cord_x <= boundary_max_x) && (boundary_min_z <= cord_z && cord_z <= boundary_max_z)) {
+			if (boundary_min_x - ball.getRadius() <= cord_x && cord_x <= this->m_x) {
+				cord_x = boundary_min_x - ball.getRadius() - COR_VAL;
+			}
+			else {
+				cord_x = boundary_max_x + ball.getRadius() + COR_VAL;
+			}
+			ball.setPower(-ball.getVelocity_X(), ball.getVelocity_Z());
+		}
+
 		if (ball.isControlBall()) {
 			ball.setPower(0.0, 0.0);
 		}
 
-		ball.setCenter(cord_x, cord_y, cord_z);
+		ball.setCenter(cord_x, ball.getCenter().y, cord_z);
 	}
 }
 
@@ -111,8 +112,15 @@ void CWall::setPosition(float x, float y, float z)
 {
 	D3DXMATRIX m;
 	this->m_x = x;
+	this->m_z = y;
 	this->m_z = z;
 
 	D3DXMatrixTranslation(&m, x, y, z);
 	setLocalTransform(m);
+}
+
+D3DXVECTOR3 CWall::getCenter(void) const
+{
+	D3DXVECTOR3 org(m_x, 0, m_z);
+	return org;
 }

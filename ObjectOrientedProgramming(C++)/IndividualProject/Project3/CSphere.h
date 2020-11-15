@@ -28,7 +28,7 @@ public:
 	~CSphere(void);
 
 public:
-	bool create(IDirect3DDevice9* pDevice, D3DXCOLOR color = d3d::WHITE);
+	bool create(IDirect3DDevice9* pDevice, float radius, D3DXCOLOR color = d3d::WHITE);
 
 	void destroy(void);
 
@@ -47,7 +47,7 @@ public:
 
 	void setCenter(float x, float y, float z);
 
-	float getRadius(void)  const { return (float)(M_RADIUS); }
+	float getRadius(void)  const { return m_radius; }
 	const D3DXMATRIX& getLocalTransform(void) const { return m_mLocal; }
 	void setLocalTransform(const D3DXMATRIX& mLocal) { m_mLocal = mLocal; }
 	D3DXVECTOR3 getCenter(void) const;

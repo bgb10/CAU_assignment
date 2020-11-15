@@ -15,7 +15,7 @@ CSphere::CSphere(void)
 }
 CSphere::~CSphere(void) {}
 
-bool CSphere::create(IDirect3DDevice9* pDevice, D3DXCOLOR color)
+bool CSphere::create(IDirect3DDevice9* pDevice, float radius, D3DXCOLOR color)
 {
 	if (NULL == pDevice)
 		return false;
@@ -26,7 +26,9 @@ bool CSphere::create(IDirect3DDevice9* pDevice, D3DXCOLOR color)
 	m_mtrl.Emissive = d3d::BLACK;
 	m_mtrl.Power = 5.0f;
 
-	if (FAILED(D3DXCreateSphere(pDevice, getRadius(), 50, 50, &m_pSphereMesh, NULL)))
+	m_radius = radius;
+
+	if (FAILED(D3DXCreateSphere(pDevice, radius, 50, 50, &m_pSphereMesh, NULL)))
 		return false;
 	return true;
 }
@@ -107,7 +109,7 @@ void CSphere::ballUpdate(float timeDiff)
 		float tZ = cord.z + TIME_SCALE * timeDiff * getVelocity_Z();
 
 		//correction of position of ball
-		/* Please uncomment this part because this correction of ball position is necessary when a ball collides with a wall
+		/*Please uncomment this part because this correction of ball position is necessary when a ball collides with a wall
 		if (tX >= (4.5 - M_RADIUS)) {
 			tX = 4.5 - M_RADIUS;
 		}

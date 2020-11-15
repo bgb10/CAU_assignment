@@ -94,18 +94,18 @@ bool Setup()
 
 	// create balls and set the position
 	for (i = 0; i < brickCount; i++) {
-		if (false == g_sphere[i].create(Device, sphereColor[i])) return false;
+		if (false == g_sphere[i].create(Device, M_RADIUS, sphereColor[i])) return false;
 		g_sphere[i].setCenter(spherePos[i][0], (float)M_RADIUS, spherePos[i][1]);
 		g_sphere[i].setPower(0, 0);
 	}
 
 	// create controlball for control direction of moveball
-	if (false == g_controlball.create(Device, d3d::BLUE)) return false;
+	if (false == g_controlball.create(Device, M_RADIUS, d3d::BLUE)) return false;
 	g_controlball.setCenter(4.5f - M_RADIUS, (float)M_RADIUS, .0f);
 	g_controlball.setControlBall(true);
 
 	// create moveball for destroy bricks
-	if (false == g_moveball.create(Device, d3d::WHITE)) return false;
+	if (false == g_moveball.create(Device, M_RADIUS, d3d::WHITE)) return false;
 	g_moveball.setCenter(4.5f - 3 * M_RADIUS, (float)M_RADIUS, .0f);
 
 	// light setting 
@@ -179,50 +179,51 @@ bool Display(float timeDelta)
 		for (i = 0; i < brickCount; i++) {
 			g_sphere[i].hitBy(g_moveball);
 		}
-		g_moveball.ballUpdate(timeDelta);
+		//g_moveball.ballUpdate(timeDelta);
 
 		// Added: update the position of controlball. Check whether legowall hit by controlball.
 		g_controlball.ballUpdate(timeDelta);
 		for (i = 0; i < wallCount; i++) {
 			g_legowall[i].hitBy(g_controlball);
 		}
+		//g_moveball.ballUpdate(timeDelta);
 
 		// Added: update the position of moveball. Check whether controlball hit by moveball.
-		g_moveball.ballUpdate(timeDelta);
+		//g_moveball.ballUpdate(timeDelta);
 		g_controlball.hitBy(g_moveball);
 
 		// Added: If game not started, moveball follows controlball
-		if(!game_start) g_moveball.setCenter(g_controlball.getCenter().x - 2 * M_RADIUS, g_controlball.getCenter().y, g_controlball.getCenter().z);
+if (!game_start) g_moveball.setCenter(g_controlball.getCenter().x - 2 * M_RADIUS, g_controlball.getCenter().y, g_controlball.getCenter().z);
 
-		// Added: If ball out of field, restart game
-		if (g_moveball.getCenter().x >= 8) {
-			game_start = false;
-			g_moveball.setCenter(g_controlball.getCenter().x - 2 * M_RADIUS, g_controlball.getCenter().y, g_controlball.getCenter().z);
-			g_moveball.setPower(0, 0);
+// Added: If ball out of field, restart game
+if (g_moveball.getCenter().x >= 8) {
+	game_start = false;
+	g_moveball.setCenter(g_controlball.getCenter().x - 2 * M_RADIUS, g_controlball.getCenter().y, g_controlball.getCenter().z);
+	g_moveball.setPower(0, 0);
 
-			// balls set the position
-			for (i = 0; i < brickCount; i++) {
-				g_sphere[i].setCenter(spherePos[i][0], (float)M_RADIUS, spherePos[i][1]);
-				g_sphere[i].setPower(0, 0);
-			}
-		}
+	// balls set the position
+	for (i = 0; i < brickCount; i++) {
+		g_sphere[i].setCenter(spherePos[i][0], (float)M_RADIUS, spherePos[i][1]);
+		g_sphere[i].setPower(0, 0);
+	}
+}
 
-		// draw plane, walls, and spheres
-		g_legoPlane.draw(Device, g_mWorld);
-		for (i = 0; i < wallCount; i++) {
-			g_legowall[i].draw(Device, g_mWorld);
-		}
+// draw plane, walls, and spheres
+g_legoPlane.draw(Device, g_mWorld);
+for (i = 0; i < wallCount; i++) {
+	g_legowall[i].draw(Device, g_mWorld);
+}
 
-		for (int i = 0; i < brickCount; i++) {
-			g_sphere[i].draw(Device, g_mWorld);
-		}
-		g_controlball.draw(Device, g_mWorld);
-		g_moveball.draw(Device, g_mWorld);
-		g_light.draw(Device);
+for (int i = 0; i < brickCount; i++) {
+	g_sphere[i].draw(Device, g_mWorld);
+}
+g_controlball.draw(Device, g_mWorld);
+g_moveball.draw(Device, g_mWorld);
+g_light.draw(Device);
 
-		Device->EndScene();
-		Device->Present(0, 0, 0, 0);
-		Device->SetTexture(0, NULL);
+Device->EndScene();
+Device->Present(0, 0, 0, 0);
+Device->SetTexture(0, NULL);
 	}
 	return true;
 }
@@ -268,7 +269,7 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			if (!game_start) {
 				game_start = true;
 
-				g_moveball.setPower(0.5f, 0.5f);
+				g_moveball.setPower(-2.5f, 0.0);
 			}
 			break;
 		}
@@ -281,6 +282,10 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		int new_y = HIWORD(lParam);
 		float dx;
 		float dy;
+		float new_z;
+
+		float boundary_max_z = g_legowall[0].getCenter().z - g_legowall[0].getDepth() / 2 - g_controlball.getRadius();
+		float boundary_min_z = g_legowall[1].getCenter().z + g_legowall[1].getDepth() / 2 + g_controlball.getRadius();
 
 		if (LOWORD(wParam) & MK_RBUTTON) {
 
@@ -288,7 +293,21 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			dy = (old_y - new_y);// * 0.01f;
 
 			D3DXVECTOR3 coord3d = g_controlball.getCenter();
-			g_controlball.setCenter(coord3d.x, coord3d.y, coord3d.z + dx * (-0.01f));
+
+			g_controlball.setCenter(4.5f - M_RADIUS, (float)M_RADIUS, .0f);
+			g_controlball.setControlBall(true);
+
+			new_z = coord3d.z + dx * (-0.01f);
+
+			if (new_z > boundary_max_z){
+				new_z = boundary_max_z;
+			}
+			
+			if (new_z < boundary_min_z) {
+				new_z = boundary_min_z;
+			}
+
+			g_controlball.setCenter(coord3d.x, coord3d.y, new_z);
 			old_x = new_x;
 			old_y = new_y;
 
