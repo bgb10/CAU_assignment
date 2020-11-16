@@ -1,10 +1,13 @@
-# Simple calc bison program.
+# Simple bison calculator
 
-Compiled in bison https://www.gnu.org/software/bison/manual/bison.html and gcc <br>
-Written in Visual Studio Code <br>
+Simple bison calculator for Class : *CAU-2020-2 Automata And Formal Theory - Midterm Exam Assignment2* <br>
 
-## Feature
+## Notice
+- Compiled in bison https://www.gnu.org/software/bison/manual/bison.html and gcc <br>
+- Written in Visual Studio Code <br>
+- **DO NOT COPY**
 
+## Contents
 1. Binary operator : + , - , * , /
 2. Unary operator : % , ^
 3. Parenthesis : ( , )
